@@ -1,0 +1,16 @@
+{
+  "name": "ios-mock-location",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Clean-room iOS location response patcher for MITM proxy runtimes.",
+  "main": "ios-mock-location.js",
+  "scripts": {
+    "start": "node picker/server.js",
+    "test": "node test/core.test.js && node --check picker/server.js && node --check deploy/cloudflare-worker/src/index.js && node --check deploy/cloudflare-worker/src/page.js && node --check tools/update-location.js",
+    "location:update": "node tools/update-location.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

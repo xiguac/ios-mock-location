@@ -1,0 +1,38 @@
+edition: 3.0.0
+name: ios-mock-location
+access: default
+
+resources:
+  iosMockLocation:
+    component: fc3
+    props:
+      region: cn-hangzhou
+      functionName: ios-mock-location
+      description: iOS mock location picker for Shadowrocket
+      runtime: custom
+      code: ../../
+      handler: index.handler
+      timeout: 60
+      memorySize: 128
+      instanceConcurrency: 20
+      customRuntimeConfig:
+        command:
+          - sh
+        args:
+          - /code/deploy/aliyun-fc/bootstrap
+        port: 9000
+      environmentVariables:
+        TOKEN: replace-with-a-long-random-token
+        PORT: "9000"
+        DATA_FILE: /tmp/ios-mock-location/loc.json
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          description: HTTP trigger for picker and loc.json
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - OPTIONS

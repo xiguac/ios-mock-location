@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iOS Mock Location Config</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f7f7f5;--panel:#fff;--ink:#151515;--muted:#707070;--line:#deded8;--soft:#f1f1ed;--strong:#252525}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{display:grid;grid-template-rows:auto 1fr;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer}svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 14px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}.brand-mark{width:32px;height:32px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;background:#fff}.brand h1{font-size:16px;line-height:1.1;margin:0;font-weight:650;letter-spacing:0}.brand span{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:2px}
+.seg{display:flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:8px;background:var(--soft)}.seg button{display:flex;align-items:center;gap:7px;border:0;border-radius:6px;background:transparent;color:#4d4d4d;padding:8px 10px;font-size:13px}.seg button.active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.shell{display:grid;grid-template-columns:minmax(0,1fr) 380px;min-height:0}.map-wrap{position:relative;min-height:0}#map{height:100%;min-height:0}.map-note{position:absolute;left:12px;bottom:12px;z-index:400;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12px;color:#444;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+aside{background:var(--panel);border-left:1px solid var(--line);padding:14px;overflow:auto}.panel-title{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;font-weight:650;color:#262626}
+form{display:grid;gap:12px}.field{display:grid;gap:6px}.field span{font-size:12px;color:#555}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}input,textarea{width:100%;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);outline:none}textarea{min-height:156px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.45}input:focus,textarea:focus{border-color:#777;box-shadow:0 0 0 3px rgba(0,0,0,.06)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font-size:14px}.btn.primary{background:var(--strong);border-color:var(--strong);color:#fff}.btn:hover{background:#f8f8f5}.btn.primary:hover{background:#111}.hint{font-size:12px;color:var(--muted);line-height:1.55;border-top:1px solid var(--line);padding-top:11px}.leaflet-container{font-family:inherit}
+@media(max-width:820px){html,body{height:auto;min-height:100%}body{display:block;overflow:auto}header{position:sticky;top:0;z-index:700;height:auto;display:grid;grid-template-columns:1fr;gap:10px;padding:10px 12px;background:rgba(255,255,255,.98)}.brand-mark{width:30px;height:30px;border-radius:7px}.brand h1{font-size:15px}.brand h1 span{display:none}.shell{display:block}.map-wrap{height:min(54vh,460px);min-height:330px;border-bottom:1px solid var(--line)}#map{height:100%}.map-note{display:none}aside{position:relative;z-index:650;margin:-14px 10px 14px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.08);overflow:visible}.panel-title{margin-bottom:10px}.row,.actions{grid-template-columns:1fr}.seg{width:100%}.seg button{flex:1;justify-content:center;min-height:40px}form{gap:10px}input,textarea{font-size:16px}input{min-height:42px}.btn{min-height:42px}.hint{padding-top:10px}textarea{min-height:132px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="brand-mark"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></svg></div>
+    <h1>iOS Mock Location</h1>
+  </div>
+  <div class="seg">
+    <button id="domestic" type="button"><svg viewBox="0 0 24 24"><path d="M4 6.5 9 4l6 2.5 5-2.5v13.5l-5 2.5-6-2.5-5 2.5V6.5Z"/><path d="M9 4v13.5M15 6.5V20"/></svg>高德</button>
+    <button id="global" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.2 2.4 3.2 5.1 3.2 8s-1 5.6-3.2 8M12 4c-2.2 2.4-3.2 5.1-3.2 8s1 5.6 3.2 8"/></svg>国外</button>
+  </div>
+</header>
+<div class="shell">
+  <div class="map-wrap"><div id="map"></div><div class="map-note">点击地图或拖动标记调整位置</div></div>
+  <aside>
+    <h2 class="panel-title"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>静态配置</h2>
+    <form id="form">
+      <div class="row"><label class="field"><span>纬度 WGS-84</span><input id="latitude" type="number" step="0.000001" value="37.3349"></label><label class="field"><span>经度 WGS-84</span><input id="longitude" type="number" step="0.000001" value="-122.00902"></label></div>
+      <div class="row"><label class="field"><span>海拔 米</span><input id="altitude" type="number" step="1" value="530"></label><label class="field"><span>水平精度</span><input id="horizontalAccuracy" type="number" step="1" value="39"></label></div>
+      <label class="field"><span>垂直精度</span><input id="verticalAccuracy" type="number" step="1" value="1000"></label>
+      <div class="actions">
+        <button id="elev" class="btn" type="button"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 18l5-10 3 6 2-4 2 8"/></svg>获取海拔</button>
+        <button id="copy" class="btn primary" type="button"><svg viewBox="0 0 24 24"><path d="M8 8h10v12H8z"/><path d="M6 16H5a1 1 0 0 1-1-1V5h10v1"/></svg>复制 JSON</button>
+      </div>
+      <label class="field"><span>loc.json</span><textarea id="json" readonly></textarea></label>
+      <div class="hint">GitHub Pages 是静态示例，不能直接写入远端。选点后复制这些数值，手动更新静态配置。</div>
+    </form>
+  </aside>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const els={lat:latitude,lng:longitude,altitude:altitude,hacc:horizontalAccuracy,vacc:verticalAccuracy,json:json,domestic:domestic,global:global};
+const GCJ=(()=>{const PI=Math.PI,a=6378245,ee=.00669342162296594323;const out=(lat,lng)=>lng<72.004||lng>137.8347||lat<.8293||lat>55.8271;function tLat(x,y){let r=-100+2*x+3*y+.2*y*y+.1*x*y+.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*PI)+20*Math.sin(2*x*PI))*2/3;r+=(20*Math.sin(y*PI)+40*Math.sin(y/3*PI))*2/3;r+=(160*Math.sin(y/12*PI)+320*Math.sin(y*PI/30))*2/3;return r}function tLng(x,y){let r=300+x+2*y+.1*x*x+.1*x*y+.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*PI)+20*Math.sin(2*x*PI))*2/3;r+=(20*Math.sin(x*PI)+40*Math.sin(x/3*PI))*2/3;r+=(150*Math.sin(x/12*PI)+300*Math.sin(x/30*PI))*2/3;return r}function wgs2gcj(lat,lng){if(out(lat,lng))return[lat,lng];let dLat=tLat(lng-105,lat-35),dLng=tLng(lng-105,lat-35),rad=lat/180*PI,m=Math.sin(rad);m=1-ee*m*m;let sm=Math.sqrt(m);dLat=dLat*180/((a*(1-ee))/(m*sm)*PI);dLng=dLng*180/(a/sm*Math.cos(rad)*PI);return[lat+dLat,lng+dLng]}function gcj2wgs(lat,lng){if(out(lat,lng))return[lat,lng];let g=wgs2gcj(lat,lng);return[lat*2-g[0],lng*2-g[1]]}return{wgs2gcj,gcj2wgs}})();
+let mode=localStorage.iosMockLocationMapMode||"global",layer;const map=L.map("map").setView(displayLatLng(),15);const marker=L.marker(displayLatLng(),{draggable:true}).addTo(map);
+function wgsLatLng(){return[Number(els.lat.value),Number(els.lng.value)]}function displayLatLng(){const p=wgsLatLng();return mode==="domestic"?GCJ.wgs2gcj(p[0],p[1]):p}function updateJson(){els.json.value=JSON.stringify({latitude:Number(els.lat.value),longitude:Number(els.lng.value),altitude:Math.round(Number(els.altitude.value)),horizontalAccuracy:Math.round(Number(els.hacc.value)),verticalAccuracy:Math.round(Number(els.vacc.value))},null,2)}
+function setWgs(lat,lng){els.lat.value=Number(lat).toFixed(6);els.lng.value=Number(lng).toFixed(6);syncMarker(false);updateJson()}function setFromDisplay(lat,lng){const p=mode==="domestic"?GCJ.gcj2wgs(lat,lng):[lat,lng];setWgs(p[0],p[1])}function syncMarker(pan=true){const p=displayLatLng();marker.setLatLng(p);if(pan)map.setView(p,Math.max(map.getZoom(),13))}
+function setMode(next){mode=next;localStorage.iosMockLocationMapMode=mode;els.domestic.classList.toggle("active",mode==="domestic");els.global.classList.toggle("active",mode==="global");if(layer)map.removeLayer(layer);layer=mode==="domestic"?L.tileLayer("https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",{subdomains:["1","2","3","4"],attribution:"高德地图"}):L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"OpenStreetMap"});layer.addTo(map);syncMarker()}
+domestic.onclick=()=>setMode("domestic");global.onclick=()=>setMode("global");map.on("click",ev=>setFromDisplay(ev.latlng.lat,ev.latlng.lng));marker.on("dragend",ev=>{const p=ev.target.getLatLng();setFromDisplay(p.lat,p.lng)});["lat","lng","altitude","hacc","vacc"].forEach(k=>els[k].addEventListener("change",()=>{syncMarker(false);updateJson()}));
+elev.onclick=async()=>{const [lat,lng]=wgsLatLng();const r=await fetch("https://api.open-meteo.com/v1/elevation?latitude="+encodeURIComponent(lat)+"&longitude="+encodeURIComponent(lng));const j=await r.json();if(Array.isArray(j.elevation)&&Number.isFinite(Number(j.elevation[0]))){els.altitude.value=Math.round(Number(j.elevation[0]));updateJson()}};
+copy.onclick=async()=>navigator.clipboard.writeText(els.json.value);
+fetch("loc.json").then(r=>r.ok?r.json():null).then(j=>{if(j){for(const k of["latitude","longitude","altitude","horizontalAccuracy","verticalAccuracy"])if(j[k]!=null)document.getElementById(k).value=j[k]}setMode(mode);updateJson()}).catch(()=>{setMode(mode);updateJson()});
+</script>
+</body>
+</html>

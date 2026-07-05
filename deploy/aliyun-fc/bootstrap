@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -eu
+
+export PORT="${PORT:-${FC_SERVER_PORT:-9000}}"
+export DATA_FILE="${DATA_FILE:-/tmp/ios-mock-location/loc.json}"
+
+exec node picker/server.js

@@ -1,0 +1,8 @@
+node_modules/
+picker/loc.json
+dist/
+.wrangler/
+deploy/cloudflare-worker/.wrangler/
+*.log
+.cloudflare-local-token.txt
+.aliyun-fc-local-token.txt

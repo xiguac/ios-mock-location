@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ios-mock-location",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-04",
+  "kv_namespaces": [
+    {
+      "binding": "LOCATION_KV",
+      "id": "df4faf4338a3484b875b3fa110963542",
+      "preview_id": "60ea5fd752ba4d73accbff92cd7ebf5f"
+    }
+  ]
+}
